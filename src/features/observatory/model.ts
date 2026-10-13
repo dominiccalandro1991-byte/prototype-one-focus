@@ -42,7 +42,7 @@ export function reducer(s: ObservatoryState, a: Action): ObservatoryState {
     next = { ...s, harmonic: value, harmonicLocked: value >= 64 && value <= 72 };
   }
   if (a.type === 'anchor' && a.index >= 0 && a.index < 3 && !s.anchorLocked[a.index]) {
-    const target = targets[a.index];
+    const target = targets[a.index]!;
     const point = { x: Math.max(8, Math.min(92, a.point.x)), y: Math.max(12, Math.min(88, a.point.y)) };
     const locked = a.release && Math.hypot(point.x - target.x, point.y - target.y) < 13;
     next = { ...s, anchors: s.anchors.map((p, i) => i === a.index ? locked ? target : point : p), anchorLocked: s.anchorLocked.map((v, i) => i === a.index ? locked : v) };

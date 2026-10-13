@@ -15,7 +15,7 @@ export function Experience() {
   const [copy, setCopy] = useState<'idle' | 'copied' | 'fallback'>('idle');
   const count = systems(s), score = stability(s), intro = s.screen === 'intro', result = s.screen === 'signature';
   const audio = useObservatoryAudio(s.sound, !intro, count, s.opening);
-  const destination = destinations[s.destination ?? 0];
+  const destination = destinations[s.destination ?? 0] ?? destinations[0]!;
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
     const change = () => dispatch({ type: 'motion', value: query.matches }); change(); query.addEventListener('change', change);
@@ -23,6 +23,8 @@ export function Experience() {
   }, []);
   useEffect(() => {
     if (!s.opening) return;
+    const chamber = document.querySelector('.chamber-section');
+    if (chamber) window.scrollTo({ top: chamber.getBoundingClientRect().top + window.scrollY - 12, behavior: 'instant' });
     const timer = window.setTimeout(() => dispatch({ type: 'finish' }), s.reducedMotion ? 1200 : 4800);
     return () => window.clearTimeout(timer);
   }, [s.opening, s.reducedMotion]);

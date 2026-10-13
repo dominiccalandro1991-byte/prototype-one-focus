@@ -10,7 +10,7 @@ export function Portal({ state, intro = false, result = false }: { state: Observ
     if (!el || !ctx) return;
     let frame = 0, previous = 0, slowFrames = 0;
     let lowPower = false;
-    const palette = ['--primary', '--energy', '--gold', '--rose'].map(token => getComputedStyle(el).getPropertyValue(token).trim());
+    const palette = ['--primary', '--energy', '--gold', '--rose'].map(token => getComputedStyle(el).getPropertyValue(token).trim()) as [string, string, string, string];
     function draw(t: number) {
       if (!el || !ctx) return;
       if (previous && t - previous > 65) slowFrames++;
@@ -47,10 +47,10 @@ export function Portal({ state, intro = false, result = false }: { state: Observ
     window.addEventListener('resize', resize);
     return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); };
   }, [state.reducedMotion, state.orbit, state.harmonic, state.anchorLocked, intro]);
-  const count = systems(state), destination = destinations[state.destination ?? 0];
+  const count = systems(state), destination = destinations[state.destination ?? 0] ?? destinations[0]!;
   return <div className={`portal-chamber stage-${count} ${intro ? 'intro-portal' : ''} ${state.opening ? 'portal-opening' : ''} ${result ? 'result-portal' : ''}`} aria-label={`Fictional Rift, ${intro ? 'dormant' : `${count} systems aligned`}`}>
     <div className="astronomical-ring ring-one" /><div className="astronomical-ring ring-two" />
-    <div className="portal-image"><img src={destinations[0].image} alt="An original luminous violet and cyan Rift" width={1024} height={1024} fetchPriority={intro ? 'high' : 'auto'} /></div>
+    <div className="portal-image"><img src={destinations[0]!.image} alt="An original luminous violet and cyan Rift" width={1024} height={1024} fetchPriority={intro ? 'high' : 'auto'} /></div>
     {(state.opening || result || count > 1) && <div className={`destination-aperture ${destination.className}`}><img src={destination.image} width={1024} height={1024} alt={destination.title} /></div>}
     <canvas ref={canvas} className="portal-canvas" aria-hidden="true" />
     <div className="portal-crosshair crosshair-top" /><div className="portal-crosshair crosshair-bottom" />
