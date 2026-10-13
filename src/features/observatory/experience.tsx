@@ -15,7 +15,7 @@ export function Experience() {
   const [copy, setCopy] = useState<'idle' | 'copied' | 'fallback'>('idle');
   const count = systems(s), score = stability(s), intro = s.screen === 'intro', result = s.screen === 'signature';
   const audio = useObservatoryAudio(s.sound, !intro, count, s.opening);
-  const destination = destinations[s.destination ?? 0];
+  const destination = destinations[s.destination ?? 0] ?? destinations[0]!;
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
     const change = () => dispatch({ type: 'motion', value: query.matches }); change(); query.addEventListener('change', change);
