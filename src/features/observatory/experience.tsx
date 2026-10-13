@@ -23,6 +23,7 @@ export function Experience() {
   }, []);
   useEffect(() => {
     if (!s.opening) return;
+    document.querySelector('.chamber-section')?.scrollIntoView({ block: 'start', behavior: s.reducedMotion ? 'auto' : 'smooth' });
     const timer = window.setTimeout(() => dispatch({ type: 'finish' }), s.reducedMotion ? 1200 : 4800);
     return () => window.clearTimeout(timer);
   }, [s.opening, s.reducedMotion]);
