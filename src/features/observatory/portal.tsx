@@ -47,7 +47,7 @@ export function Portal({ state, intro = false, result = false }: { state: Observ
     window.addEventListener('resize', resize);
     return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); };
   }, [state.reducedMotion, state.orbit, state.harmonic, state.anchorLocked, intro]);
-  const count = systems(state), destination = destinations[state.destination ?? 0];
+  const count = systems(state), destination = destinations[state.destination ?? 0] ?? destinations[0]!;
   return <div className={`portal-chamber stage-${count} ${intro ? 'intro-portal' : ''} ${state.opening ? 'portal-opening' : ''} ${result ? 'result-portal' : ''}`} aria-label={`Fictional Rift, ${intro ? 'dormant' : `${count} systems aligned`}`}>
     <div className="astronomical-ring ring-one" /><div className="astronomical-ring ring-two" />
     <div className="portal-image"><img src={destinations[0].image} alt="An original luminous violet and cyan Rift" width={1024} height={1024} fetchPriority={intro ? 'high' : 'auto'} /></div>
