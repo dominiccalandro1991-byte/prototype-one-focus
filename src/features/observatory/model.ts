@@ -14,10 +14,11 @@ export function initialState(): ObservatoryState {
 export const families = ['Violet Echo', 'Azure Current', 'Golden Veil', 'Rose Fracture'];
 export function systems(s: ObservatoryState) { return Number(s.orbitLocked) + Number(s.harmonicLocked) + Number(s.anchorLocked.every(Boolean)); }
 export function stability(s: ObservatoryState) { const count = systems(s); return count === 3 ? 100 : 18 + count * 27; }
-/** Exact Prototype 1 resolver: three final values (0–100) select one of four destinations. */
+/** Balanced Prototype 1 resolver: three final values (0–100) mix into one value split into four equal bands. */
 export function resolveDestination(orbitValue: number, harmonicValue: number, anchorValue: number) {
-  const clamp = (v: number) => Math.max(0, Math.min(100, v));
-  return (Math.floor(clamp(orbitValue) / 25) + Math.floor(clamp(harmonicValue) / 25) + Math.floor(clamp(anchorValue) / 25)) % 4;
+  const clamp = (v: number) => Math.round(Math.max(0, Math.min(100, v)));
+  const combined = (clamp(orbitValue) * 37 + clamp(harmonicValue) * 53 + clamp(anchorValue) * 71) % 100;
+  return combined < 25 ? 0 : combined < 50 ? 1 : combined < 75 ? 2 : 3;
 }
 const orders = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
 /** Final control values: which orbit cycle locked, the resonance position, and the order anchors were secured. */
