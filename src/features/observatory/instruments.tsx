@@ -12,7 +12,7 @@ export function Instruments({ state: s, dispatch, disabled }: { state: Observato
   const activeAnchor = useRef<number | null>(null);
   const lockedAnchors = s.anchorLocked.every(Boolean);
   function orbitMove(e: PointerEvent) {
-    if (drag.current && !s.orbitLocked && !disabled) dispatch({ type: 'orbit', value: drag.current.value + (e.clientX - drag.current.x) * 1.25 });
+    if (drag.current && !s.orbitLocked && !disabled) dispatch({ type: 'orbit', value: drag.current.value + (e.clientX - drag.current.x) * 1.25, release: false });
   }
   function anchorMove(e: PointerEvent, release: boolean) {
     const rect = field.current?.getBoundingClientRect(), index = activeAnchor.current;
@@ -25,10 +25,10 @@ export function Instruments({ state: s, dispatch, disabled }: { state: Observato
     <section className={`instrument ${s.orbitLocked ? 'complete' : ''}`} aria-label="Orbital alignment instrument">
       <InstrumentHeading number="01" title="ORBITAL ALIGNMENT" locked={s.orbitLocked} />
       <div className="dial-area">
-        <div className="orbital-dial" role="slider" tabIndex={disabled || s.orbitLocked ? -1 : 0} aria-label="Orbital alignment" aria-valuemin={0} aria-valuemax={360} aria-valuenow={Math.round(s.orbit)} aria-valuetext={s.orbitLocked ? 'Orbit locked' : `${Math.round(s.orbit)} degrees; align with 90, 210, or 330 degrees`} aria-disabled={disabled || s.orbitLocked}
+        <div className="orbital-dial" role="slider" tabIndex={disabled || s.orbitLocked ? -1 : 0} aria-label="Orbital alignment" aria-valuemin={0} aria-valuemax={360} aria-valuenow={Math.round(s.orbit)} aria-valuetext={s.orbitLocked ? 'Orbit locked' : `${Math.round(s.orbit)} degrees; align with 90, 210, or 330 degrees, then press Enter`} aria-disabled={disabled || s.orbitLocked}
           onPointerDown={e => { if (disabled || s.orbitLocked) return; e.currentTarget.setPointerCapture(e.pointerId); drag.current = { x: e.clientX, value: s.orbit }; }}
-          onPointerMove={orbitMove} onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}
-          onKeyDown={e => { if (disabled || s.orbitLocked) return; if (['ArrowRight', 'ArrowUp', 'ArrowLeft', 'ArrowDown'].includes(e.key)) { e.preventDefault(); dispatch({ type: 'orbit', value: s.orbit + (['ArrowRight', 'ArrowUp'].includes(e.key) ? 3 : -3) }); } }}>
+          onPointerMove={orbitMove} onPointerUp={() => { if (drag.current && !disabled) dispatch({ type: 'orbit', value: s.orbit }); drag.current = null; }} onPointerCancel={() => { drag.current = null; }}
+          onKeyDown={e => { if (disabled || s.orbitLocked) return; if (['ArrowRight', 'ArrowUp', 'ArrowLeft', 'ArrowDown'].includes(e.key)) { e.preventDefault(); dispatch({ type: 'orbit', value: s.orbit + (['ArrowRight', 'ArrowUp'].includes(e.key) ? 3 : -3), release: false }); } else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dispatch({ type: 'orbit', value: s.orbit }); } }}>
           <svg viewBox="0 0 180 180" aria-hidden="true"><circle className="dial-outer" cx="90" cy="90" r="77" />
             {Array.from({ length: 48 }, (_, i) => <line key={i} className="dial-tick" x1="90" y1={i % 4 === 0 ? 16 : 20} x2="90" y2="25" transform={`rotate(${i * 7.5} 90 90)`} />)}
             <circle className="dial-inner" cx="90" cy="90" r="53" />
@@ -44,7 +44,7 @@ export function Instruments({ state: s, dispatch, disabled }: { state: Observato
       <InstrumentHeading number="02" title="HARMONIC RESONANCE" locked={s.harmonicLocked} />
       <div className="resonance-area"><div className="frequency-readout"><Radio size={19} /><span>{(s.harmonic * 3.14 + 110).toFixed(1)}<small> Hz</small></span><span className={Math.abs(s.harmonic - 68) < 15 ? 'resonance-near' : ''}>◈</span></div>
         <svg className="waveform" viewBox="0 0 240 86" aria-label="Live waveform and target waveform"><line className="wave-baseline" x1="0" y1="43" x2="240" y2="43" /><polyline className="wave-target" points={wave(68)} /><polyline className="wave-live" points={wave(s.harmonic)} /></svg>
-        <div className="slider-track"><span className="slider-target" /><input aria-label="Harmonic resonance" type="range" min="0" max="100" step="1" value={s.harmonic} disabled={disabled || s.harmonicLocked} onChange={e => dispatch({ type: 'harmonic', value: Number(e.target.value) })} /></div>
+        <div className="slider-track"><span className="slider-target" /><input aria-label="Harmonic resonance" type="range" min="0" max="100" step="1" value={s.harmonic} disabled={disabled || s.harmonicLocked} onChange={e => dispatch({ type: 'harmonic', value: Number(e.target.value), release: false })} onPointerUp={e => dispatch({ type: 'harmonic', value: Number(e.currentTarget.value) })} onKeyUp={e => dispatch({ type: 'harmonic', value: Number(e.currentTarget.value) })} /></div>
         <div className="range-labels"><span>LOW FREQUENCY</span><span>HIGH FREQUENCY</span></div>
         <span className="instrument-hint">{s.harmonicLocked ? 'SIGNALS IN PERFECT RESONANCE' : 'MATCH THE LUMINOUS WAVE'}</span>
       </div>
