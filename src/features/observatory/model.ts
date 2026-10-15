@@ -31,7 +31,7 @@ export function signature(orbit: number, harmonic: number, anchorOrder: number[]
   const code = (v.orbitValue * 7 + v.harmonicValue * 3 + v.anchorValue) % 99 + 1;
   return { destination, name: `${families[destination]} ${String(code).padStart(2, '0')}` };
 }
-export type Action = { type: 'enter' | 'reset' | 'open' | 'finish' | 'return' | 'sound' } | { type: 'motion'; value: boolean } | { type: 'orbit' | 'harmonic'; value: number } | { type: 'anchor'; index: number; point: Point; release: boolean };
+export type Action = { type: 'enter' | 'reset' | 'open' | 'finish' | 'return' | 'sound' } | { type: 'motion'; value: boolean } | { type: 'orbit' | 'harmonic'; value: number; release?: boolean } | { type: 'anchor'; index: number; point: Point; release: boolean };
 export function reducer(s: ObservatoryState, a: Action): ObservatoryState {
   if (a.type === 'motion') return { ...s, reducedMotion: a.value };
   if (a.type === 'sound') return { ...s, sound: !s.sound };
@@ -45,12 +45,12 @@ export function reducer(s: ObservatoryState, a: Action): ObservatoryState {
   if (a.type === 'orbit' && !s.orbitLocked) {
     const value = Math.max(0, Math.min(360, a.value));
     const target = Math.round((value - 90) / 120) * 120 + 90;
-    const locked = Math.abs(value - target) <= 7 && target >= 0 && target <= 360;
+    const locked = a.release !== false && Math.abs(value - target) <= 7 && target >= 0 && target <= 360;
     next = { ...s, orbit: locked ? target : value, orbitLocked: locked };
   }
   if (a.type === 'harmonic' && !s.harmonicLocked) {
     const value = Math.max(0, Math.min(100, a.value));
-    next = { ...s, harmonic: value, harmonicLocked: value >= 64 && value <= 72 };
+    next = { ...s, harmonic: value, harmonicLocked: a.release !== false && value >= 64 && value <= 72 };
   }
   if (a.type === 'anchor' && a.index >= 0 && a.index < 3 && !s.anchorLocked[a.index]) {
     const target = targets[a.index]!;
