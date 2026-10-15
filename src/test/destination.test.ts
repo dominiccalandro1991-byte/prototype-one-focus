@@ -5,7 +5,11 @@ import { anchorOrders, orbitTargets, playSession, stressTest } from '@/features/
 describe('destination resolver', () => {
   it('uses the balanced band formula', () => {
     expect(resolveDestination(0, 0, 0)).toBe(0);
-    expect(resolveDestination(25, 50, 75)).toBe(1); // (925+2650+5325)%100 = 0? see below
+    expect(resolveDestination(25, 50, 75)).toBe(0); // (925+2650+5325)%100 = 0
+    expect(resolveDestination(1, 0, 0)).toBe(1); // 37 -> band 1
+    expect(resolveDestination(0, 1, 0)).toBe(2); // 53 -> band 2
+    expect(resolveDestination(0, 3, 0)).toBe(2); // 159%100=59 -> band 2
+    expect(resolveDestination(0, 0, 11)).toBe(3); // 781%100=81 -> band 3
 
   });
   it('reaches all four destinations through normal play', () => {
